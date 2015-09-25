@@ -79,7 +79,6 @@ namespace NewMethod
                 }
             }
 
-
             int[,] resultBoard = new int[sWidth, sHeight];
             for (int j = 0; j < sHeight; j++)
             {
@@ -91,14 +90,15 @@ namespace NewMethod
             int[] resultSum = new int[icenum];
 
             int iceBlockNum = 0;
+
             //将数组写入到文件
-            arrToFile("board.txt", resultBoard, sWidth, sHeight);
+//            arrToFile("board.txt", resultBoard, sWidth, sHeight);
 
             iceBlockNum = findIce(resultBoard, resultSum, sWidth, sHeight, icenum);
 
-            arrToFile("resultBoard.txt", resultBoard, sWidth, sHeight);
+//            arrToFile("resultBoard.txt", resultBoard, sWidth, sHeight);
 
-            for (int i = 0; i < iceBlockNum; i++)
+            for (int i = 0; i <= iceBlockNum; i++)
             {
                 textBox1.AppendText(i.ToString() + ": " + (resultSum[i]).ToString() + "\n");
             }
@@ -232,6 +232,39 @@ namespace NewMethod
                             idxDownY = idxUpY = y + 1;
                             break;
                         }
+
+                        if ((x - 1 > 0) && (y - 1 > 0) && resultArr[x - 1, y - 1] == 1)
+                        {
+                            checkDone = false;
+                            idxDownX = idxUpX = x - 1;
+                            idxDownY = idxUpY = y - 1;
+                            break;
+                        }
+
+                        if ((x + 1 < width) && (y - 1 > 0) && resultArr[x + 1, y - 1] == 1)
+                        {
+                            checkDone = false;
+                            idxDownX = idxUpX = x + 1;
+                            idxDownY = idxUpY = y - 1;
+                            break;
+                        }
+
+                        if ((x + 1 < width) && (y + 1 < height) && resultArr[x + 1, y + 1] == 1)
+                        {
+                            checkDone = false;
+                            idxDownX = idxUpX = x + 1;
+                            idxDownY = idxUpY = y + 1;
+                            break;
+                        }
+
+                        if ((x - 1 > 0) && (y + 1 < height) && resultArr[x - 1, y + 1] == 1)
+                        {
+                            checkDone = false;
+                            idxDownX = idxUpX = x - 1;
+                            idxDownY = idxUpY = y + 1;
+                            break;
+                        }
+
                     }
 
                 }
