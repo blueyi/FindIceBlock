@@ -92,11 +92,11 @@ namespace NewMethod
             int iceBlockNum = 0;
 
             //将数组写入到文件
-//            arrToFile("board.txt", resultBoard, sWidth, sHeight);
+            arrToFile("board.txt", resultBoard, sWidth, sHeight);
 
             iceBlockNum = findIce(resultBoard, resultSum, sWidth, sHeight, icenum);
 
-//            arrToFile("resultBoard.txt", resultBoard, sWidth, sHeight);
+            arrToFile("resultBoard.txt", resultBoard, sWidth, sHeight);
 
             for (int i = 0; i <= iceBlockNum; i++)
             {
@@ -113,12 +113,15 @@ namespace NewMethod
 //            bool[] isChecked = new bool[allIceNum]; //检查该冰点是否已被标记
             int iceOrder = 1;  //冰块顺序
             int iceOrderSum = 0;   //当前冰块序号对应的冰块大小
+            int[] currentCheckedIce;
+
             while (allIceNumHere != 0)
             {
                 int idxUpX = 0;
                 int idxUpY = 0;
                 int idxDownX = 0;
                 int idxDownY = 0;
+                currentCheckedIce = new int[allIceNum];
 
                 iceOrder++;
                 iceOrderSum = 0;  //当前冰块序号对应的所有冰数量
@@ -179,6 +182,11 @@ namespace NewMethod
                     break;
             }
  
+        }
+
+        public int idxConvert(int x, int y, int width)
+        {
+            return (x * width + y);
         }
 
         //判断是否当前冰块中的所有像素都已经被扫描过
