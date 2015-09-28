@@ -113,173 +113,211 @@ namespace NewMethod
 //            bool[] isChecked = new bool[allIceNum]; //检查该冰点是否已被标记
             int iceOrder = 1;  //冰块顺序
             int iceOrderSum = 0;   //当前冰块序号对应的冰块大小
-            int[] currentCheckedIce;
+            int[] currentCheckedIceIdx;   //用于存放当前检查过的像素索引
+            int arrLength = width * height;
+            int[] arrLine = new int[arrLength];  //存放一维化之后的数组
+            int lastPoint = 0; //上一块冰的起点
+
+            //将像素线性化
+            for (int i = 0; i < width; i++)
+            {
+                for (int j = 0; j < height; j++)
+                {
+                    arrLine[j * width + i] = resultArr[i, j];
+                }
+            }
 
             while (allIceNumHere != 0)
             {
-                int idxUpX = 0;
-                int idxUpY = 0;
-                int idxDownX = 0;
-                int idxDownY = 0;
-                currentCheckedIce = new int[allIceNum];
+                int idxUp = 0;  //向上扫描的起始坐标
+                int idxDown = 0;  //向下扫描的起始坐标
+                int currentOrderStart = 0;  //记录当前序号冰块的检查起点
+
+                currentCheckedIceIdx = new int[allIceNum];  
 
                 iceOrder++;
                 iceOrderSum = 0;  //当前冰块序号对应的所有冰数量
 
                 //找到需要标记的冰,即像素为1的点
-                isAllCheckedInCurrentIce(resultArr, 1, ref idxUpX, ref idxUpY, ref idxDownX, ref idxDownY, width, height);
-                idxDownX = idxUpX;
-                idxDownY = idxUpY;
+                findFirstPoint(ref lastPoint, arrLine, arrLength);
+//                isAllCheckedInCurrentIce(resultArr, 1, ref idxUpX, ref idxUpY, ref idxDownX, ref idxDownY, width, height);
+//                idxDownX = idxUpX;
+//                idxDownY = idxUpY;
+                idxDown = idxUp = lastPoint;
 
-                markIceLine(resultArr, iceOrder, ref iceOrderSum, ref idxUpX, ref idxUpY, width, ref allIceNumHere);
+                markIceLine(arrLine, iceOrder, ref iceOrderSum, idxUp, currentCheckedIceIdx, width, ref allIceNumHere);
 
                 //检查是否当前连通块的冰全部标记完成
-                while (!isAllCheckedInCurrentIce(resultArr, iceOrder, ref idxUpX, ref idxUpY,  ref idxDownX, ref idxDownY, width, height))
+                while (!isAllCheckedInCurrentIceBlock(currentCheckedIceIdx, arrLine, ref currentOrderStart, ref idxUp, ref idxDown, width, height, iceOrderSum))
                 {
                     
-                        while ((idxUpY > 0) && (resultArr[idxUpX, idxUpY] != 0) && (resultArr[idxUpX, idxUpY] != iceOrder))
+                        while ((idxUp / width >= 0) && (arrLine[idxUp] != 0) && (arrLine[idxUp] != iceOrder))
                         {
-                            markIceLine(resultArr, iceOrder, ref iceOrderSum, ref idxUpX, ref idxUpY, width, ref allIceNumHere);
-                            idxUpY--;
+//                            markIceLine(resultArr, iceOrder, ref iceOrderSum, ref idxUpX, ref idxUpY, width, ref allIceNumHere);
+//                            idxUpY--;
+                            markIceLine(arrLine, iceOrder, ref iceOrderSum, idxUp, currentCheckedIceIdx, width, ref allIceNumHere);
+                            idxUp = idxUp - width + idxUp % width;
                         }
 
-                        while ((idxDownY < height) && (resultArr[idxDownX, idxDownY] != 0) && (resultArr[idxDownX, idxDownY] != iceOrder))
+                        while ((idxDown / width < height) && (arrLine[idxDown] != 0) && (arrLine[idxDown] != iceOrder))
                         {
-                            markIceLine(resultArr, iceOrder, ref iceOrderSum, ref idxDownX, ref idxDownY, width, ref allIceNumHere);
-                            idxDownY++;
+                            markIceLine(arrLine, iceOrder, ref iceOrderSum, idxDown, currentCheckedIceIdx, width, ref allIceNumHere);
+                            idxDown = idxDown + width + idxDown % width;
+                           // markIceLine(resultArr, iceOrder, ref iceOrderSum, ref idxDownX, ref idxDownY, width, ref allIceNumHere);
+                           // idxDownY++;
                         }
                 }
                 resultSum[iceOrder] = iceOrderSum;
             }
-            return iceOrder;
 
+            int idxX = 0;
+            int idxY = 0;
+            for (int idx = 0; idx < arrLength; idx++)
+            {
+                idxX = idx % width;
+                idxY = idx / height;
+                resultArr[idxX, idxY] = arrLine[idx];
+            }
+
+                return iceOrder;
         }
 
         //标记当前行中所有需要标记的冰块
-        public void markIceLine(int[,] resultArr, int iceOrder, ref int iceOrderSum, ref int idxX, ref int idxY, int width, ref int allIceNumHere)
+        public void markIceLine(int[] arrLine, int iceOrder, ref int iceOrderSum, int lastPoint, int[] currentCheckedIceIdx, int width, ref int allIceNumHere)
         {
-            int leftX = idxX;
-            int rightX = idxX + 1;
+            int leftX = lastPoint;
+            int rightX = lastPoint + 1;
             while (true)
             {
-                resultArr[leftX, idxY] = iceOrder;
+                arrLine[leftX] = iceOrder;
+                currentCheckedIceIdx[iceOrderSum] = leftX;  //记录当前冰块坐标
                 iceOrderSum++;
                 allIceNumHere--;
                 leftX--;
-                if ((leftX < 0) || (resultArr[leftX, idxY] == 0) || (resultArr[leftX, idxY] == iceOrder))
+
+                //满足以下条件退出：超出图像左边界, 该位置不是冰，该文件是标记过的冰
+                // if ((leftX < 0) || (((leftX + 1) % width) == 0) || (arrLine[leftX] == 0) || (arrLine[leftX] == iceOrder))
+                if ((leftX < 0) || (((leftX + 1) % width) == 0) || (arrLine[leftX] != 1))
                     break;
             }
 
             while (true)
             {
-                if ((rightX >= width) || (resultArr[rightX, idxY] != 1))
+                //满足以下条件退出：超出图像左边界, 该位置不是冰，该文件是标记过的冰
+                if ((rightX > arrLine.Length) || ((rightX % width) == 0) || (arrLine[rightX] != 1))  //如果向右已经到达图像右边界，则直接退出
                     break;
-                resultArr[rightX, idxY] = iceOrder;
+
+                arrLine[rightX] = iceOrder;
+                currentCheckedIceIdx[iceOrderSum] = rightX;  //记录当前冰块坐标
                 iceOrderSum++;
                 allIceNumHere--;
                 rightX++;
-                if ((rightX >= width) || (resultArr[rightX, idxY] == 0) || (resultArr[rightX, idxY] == iceOrder))
-                    break;
+
+                //      if (((rightX % width) >= width) || (arrLine[rightX] == 0) || (arrLine[rightX] == iceOrder))
+                //         break;
             }
  
         }
 
         public int idxConvert(int x, int y, int width)
         {
-            return (x * width + y);
+            return (y * width + x);
         }
 
-        //判断是否当前冰块中的所有像素都已经被扫描过
-        public bool isAllCheckedInCurrentIce(int[,] resultArr, int currentOrder, ref int idxUpX, ref int idxUpY,  ref int idxDownX, ref int idxDownY, int width, int height)
+        //每块冰第一次被扫描到时，确定出它的初始位置
+        public void findFirstPoint(ref int lastPoint, int[] arrLine, int arrLength)
+        {
+            int i = lastPoint;
+            while (i < arrLength)
+            {
+                if (arrLine[i] == 1)
+                    break;
+                i++;
+            }
+            lastPoint = i;
+        }
+
+        //判断是否当前冰块中的所有像素都已经被扫描过, 如果不是，则确定出下一次需要扫描的起点
+        public bool isAllCheckedInCurrentIceBlock(int[] currentCheckedIceIdx, int[] arrLine, ref int currentOrderStart, ref int idxUp,  ref int idxDown,int width, int height, int iceOrderSum)
         {
             bool checkDone = true;
+            int x, y;
+            int idxX, idxY;
+            idxX = idxY = 0;
 
-            for (int y = 0; y < height; y++)
-            {
-                for (int x = 0; x < width; x++)
+                for (int idx = currentOrderStart; idx < iceOrderSum; idx++)
                 {
-                    if (resultArr[x, y] == currentOrder)
+                    x = currentCheckedIceIdx[idx] % width;
+                    y = currentCheckedIceIdx[idx] / width;
+                    if ((x - 1 > 0) && arrLine[x - 1 + y * width] == 1)
                     {
-                        // 每块冰第一次被扫描到时确定出它的初始X和Y
-                        if (currentOrder == 1)
-                        {
-                            idxUpX = idxDownX = x;
-                            idxUpY = idxDownY = y;
-                            checkDone = false;
-                            break;
-                        }
-
-                        if ((x - 1 > 0) && resultArr[x - 1, y] == 1)
-                        {
-                            checkDone = false;
-                            idxDownX = idxUpX = x - 1;
-                            idxDownY = idxUpY = y;
-                            break;
-                        }
-
-                        if ((x + 1 < width) && resultArr[x + 1, y] == 1)
-                        {
-                            checkDone = false;
-                            idxDownX = idxUpX = x + 1;
-                            idxDownY = idxUpY = y;
-                            break;
-                        }
-
-                        if ((y - 1 > 0) && resultArr[x, y - 1] == 1)
-                        {
-                            checkDone = false;
-                            idxDownX = idxUpX = x;
-                            idxDownY = idxUpY = y - 1;
-                            break;
-                        }
-
-                        if ((y + 1 < height) && resultArr[x, y + 1] == 1)
-                        {
-                            checkDone = false;
-                            idxDownX = idxUpX = x;
-                            idxDownY = idxUpY = y + 1;
-                            break;
-                        }
-
-                        if ((x - 1 > 0) && (y - 1 > 0) && resultArr[x - 1, y - 1] == 1)
-                        {
-                            checkDone = false;
-                            idxDownX = idxUpX = x - 1;
-                            idxDownY = idxUpY = y - 1;
-                            break;
-                        }
-
-                        if ((x + 1 < width) && (y - 1 > 0) && resultArr[x + 1, y - 1] == 1)
-                        {
-                            checkDone = false;
-                            idxDownX = idxUpX = x + 1;
-                            idxDownY = idxUpY = y - 1;
-                            break;
-                        }
-
-                        if ((x + 1 < width) && (y + 1 < height) && resultArr[x + 1, y + 1] == 1)
-                        {
-                            checkDone = false;
-                            idxDownX = idxUpX = x + 1;
-                            idxDownY = idxUpY = y + 1;
-                            break;
-                        }
-
-                        if ((x - 1 > 0) && (y + 1 < height) && resultArr[x - 1, y + 1] == 1)
-                        {
-                            checkDone = false;
-                            idxDownX = idxUpX = x - 1;
-                            idxDownY = idxUpY = y + 1;
-                            break;
-                        }
-
+                        checkDone = false;
+                        idxX = x - 1;
+                        idxY = y;
+                        break;
                     }
 
+                    if ((x + 1 < width) && arrLine[x + 1 + y * width] == 1)
+                    {
+                        checkDone = false;
+                        idxX = x + 1;
+                        idxY = y;
+                        break;
+                    }
+
+                    if ((y - 1 > 0) && arrLine[x + (y - 1) * width] == 1)
+                    {
+                        checkDone = false;
+                        idxX = x;
+                        idxY = y - 1;
+                        break;
+                    }
+
+                    if ((y + 1 < height) && arrLine[x + (y + 1) * width] == 1)
+                    {
+                        checkDone = false;
+                        idxX = x;
+                        idxY = y + 1;
+                        break;
+                    }
+
+                    if ((x - 1 > 0) && (y - 1 > 0) && arrLine[x - 1 + (y - 1) * width] == 1)
+                    {
+                        checkDone = false;
+                        idxX = x - 1;
+                        idxY = y - 1;
+                        break;
+                    }
+
+                    if ((x + 1 < width) && (y - 1 > 0) && arrLine[x + 1 + (y - 1) * width] == 1)
+                    {
+                        checkDone = false;
+                        idxX = x + 1;
+                        idxY = y - 1;
+                        break;
+                    }
+
+                    if ((x + 1 < width) && (y + 1 < height) && arrLine[x + 1 + (y + 1) * width] == 1)
+                    {
+                        checkDone = false;
+                        idxX = x + 1;
+                        idxY = y + 1;
+                        break;
+                    }
+
+                    if ((x - 1 > 0) && (y + 1 < height) && arrLine[x - 1 + (y + 1) * width] == 1)
+                    {
+                        checkDone = false;
+                        idxX = x - 1;
+                        idxY = y + 1;
+                        break;
+                    }
+                    currentOrderStart = currentCheckedIceIdx[idx];
+
                 }
-                if (!checkDone)
-                    break;
-            }
-            return checkDone;
+                idxDown = idxUp = idxY * width + idxX;
+
+                return checkDone;
         }
 
         private void button1_Click(object sender, EventArgs e)
