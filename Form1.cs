@@ -100,11 +100,14 @@ namespace NewMethod
             arrToFile("resultBoard.txt", resultBoard, sWidth, sHeight);
 
             if (iceBlockNum > 0)
+            {
+                textBox1.AppendText("--------------------------------------\n");
                 for (int i = 0; i <= iceBlockNum; i++)
                 {
                     textBox1.AppendText(i.ToString() + ": " + (resultSum[i]).ToString() + "\n");
                 }
-            pic.Dispose();
+            }
+           pic.Dispose();
         }
 
         //遍历并标记所有冰块
@@ -154,7 +157,8 @@ namespace NewMethod
                 while (!isAllCheckedInCurrentIceBlock(currentCheckedIceIdx, arrLine, ref currentOrderStart, ref idxUp, ref idxDown, width, height, iceOrderSum))
                 {
                     
-                        while ((idxUp >= 0) && (idxUp / width >= 0) && (arrLine[idxUp] == 1) && (arrLine[idxUp] != iceOrder))
+                    //重要的边界------
+                        while ((idxUp >= 0) && (arrLine[idxUp] != 0) && (arrLine[idxUp] != iceOrder))
                         {
 //                            markIceLine(resultArr, iceOrder, ref iceOrderSum, ref idxUpX, ref idxUpY, width, ref allIceNumHere);
 //                            idxUpY--;
@@ -162,7 +166,8 @@ namespace NewMethod
                             idxUp = idxUp - width + idxUp % width;
                         }
 
-                        while ((idxDown / width < height) && (arrLine[idxDown] == 1) && (arrLine[idxDown] != iceOrder))
+                    //重要的边界------
+                        while ((idxDown / width < height) && (arrLine[idxDown] != 0) && (arrLine[idxDown] != iceOrder))
                         {
                             markIceLine(arrLine, iceOrder, ref iceOrderSum, idxDown, currentCheckedIceIdx, width, ref allIceNumHere);
                             idxDown = idxDown + width + idxDown % width;
@@ -192,24 +197,24 @@ namespace NewMethod
             int rightX = lastPoint + 1;
             while (true)
             {
-
-                
                 arrLine[leftX] = iceOrder;
                 currentCheckedIceIdx[iceOrderSum] = leftX;  //记录当前冰块坐标
                 iceOrderSum++;
                 allIceNumHere--;
                 leftX--;
 
+                    //重要的边界------
                 //满足以下条件退出：超出图像左边界, 该位置不是冰，该文件是标记过的冰
                 // if ((leftX < 0) || (((leftX + 1) % width) == 0) || (arrLine[leftX] == 0) || (arrLine[leftX] == iceOrder))
-                if ((leftX < 0) || (((leftX + 1) % width) == 0) || (arrLine[leftX] != 1))
+                if ((leftX < 0) || (((leftX + 1) % width) == 0) || (arrLine[leftX] == 0))
                     break;
             }
 
             while (true)
             {
+                    //重要的边界------
                 //满足以下条件退出：超出图像左边界, 该位置不是冰，该文件是标记过的冰
-                if ((rightX > arrLine.Length) || ((rightX % width) == 0) || (arrLine[rightX] != 1))  //如果向右已经到达图像右边界，则直接退出
+                if ((rightX > arrLine.Length) || ((rightX % width) == 0) || (arrLine[rightX] == 0))  //如果向右已经到达图像右边界，则直接退出
                     break;
 
                 arrLine[rightX] = iceOrder;
@@ -251,79 +256,84 @@ namespace NewMethod
             idxX = idxY = 0;
             int idx = currentOrderStart;
 
-                for (; idx < iceOrderSum; idx++)
+            for (; idx < iceOrderSum; idx++)
+            {
+                x = currentCheckedIceIdx[idx] % width;
+                y = currentCheckedIceIdx[idx] / width;
+                if ((x - 1 >= 0) && arrLine[x - 1 + y * width] == 1)
                 {
-                    x = currentCheckedIceIdx[idx] % width;
-                    y = currentCheckedIceIdx[idx] / width;
-                    if ((x - 1 >= 0) && arrLine[x - 1 + y * width] == 1)
-                    {
-                        checkDone = false;
-                        idxX = x - 1;
-                        idxY = y;
-                        break;
-                    }
-
-                    if ((x + 1 < width) && arrLine[x + 1 + y * width] == 1)
-                    {
-                        checkDone = false;
-                        idxX = x + 1;
-                        idxY = y;
-                        break;
-                    }
-
-                    if ((y - 1 >= 0) && arrLine[x + (y - 1) * width] == 1)
-                    {
-                        checkDone = false;
-                        idxX = x;
-                        idxY = y - 1;
-                        break;
-                    }
-
-                    if ((y + 1 < height) && arrLine[x + (y + 1) * width] == 1)
-                    {
-                        checkDone = false;
-                        idxX = x;
-                        idxY = y + 1;
-                        break;
-                    }
-
-                    if ((x - 1 >= 0) && (y - 1 >= 0) && arrLine[x - 1 + (y - 1) * width] == 1)
-                    {
-                        checkDone = false;
-                        idxX = x - 1;
-                        idxY = y - 1;
-                        break;
-                    }
-
-                    if ((x + 1 < width) && (y - 1 >= 0) && arrLine[x + 1 + (y - 1) * width] == 1)
-                    {
-                        checkDone = false;
-                        idxX = x + 1;
-                        idxY = y - 1;
-                        break;
-                    }
-
-                    if ((x + 1 < width) && (y + 1 < height) && arrLine[x + 1 + (y + 1) * width] == 1)
-                    {
-                        checkDone = false;
-                        idxX = x + 1;
-                        idxY = y + 1;
-                        break;
-                    }
-
-                    if ((x - 1 >= 0) && (y + 1 < height) && arrLine[x - 1 + (y + 1) * width] == 1)
-                    {
-                        checkDone = false;
-                        idxX = x - 1;
-                        idxY = y + 1;
-                        break;
-                    }
-
+                    checkDone = false;
+                    idxX = x - 1;
+                    idxY = y;
+                    break;
                 }
-                currentOrderStart = idx + 1;  //记录当前冰块中下一次的起点
-                idxDown = idxUp = idxY * width + idxX;
 
-                return checkDone;
+                if ((x + 1 < width) && arrLine[x + 1 + y * width] == 1)
+                {
+                    checkDone = false;
+                    idxX = x + 1;
+                    idxY = y;
+                    break;
+                }
+
+                if ((y - 1 >= 0) && arrLine[x + (y - 1) * width] == 1)
+                {
+                    checkDone = false;
+                    idxX = x;
+                    idxY = y - 1;
+                    break;
+                }
+
+                if ((y + 1 < height) && arrLine[x + (y + 1) * width] == 1)
+                {
+                    checkDone = false;
+                    idxX = x;
+                    idxY = y + 1;
+                    break;
+                }
+
+                if ((x - 1 >= 0) && (y - 1 >= 0) && arrLine[x - 1 + (y - 1) * width] == 1)
+                {
+                    checkDone = false;
+                    idxX = x - 1;
+                    idxY = y - 1;
+                    break;
+                }
+
+                if ((x + 1 < width) && (y - 1 >= 0) && arrLine[x + 1 + (y - 1) * width] == 1)
+                {
+                    checkDone = false;
+                    idxX = x + 1;
+                    idxY = y - 1;
+                    break;
+                }
+
+                if ((x + 1 < width) && (y + 1 < height) && arrLine[x + 1 + (y + 1) * width] == 1)
+                {
+                    checkDone = false;
+                    idxX = x + 1;
+                    idxY = y + 1;
+                    break;
+                }
+
+                if ((x - 1 >= 0) && (y + 1 < height) && arrLine[x - 1 + (y + 1) * width] == 1)
+                {
+                    checkDone = false;
+                    idxX = x - 1;
+                    idxY = y + 1;
+                    break;
+                }
+
+            }
+            currentOrderStart = idx + 1;  //记录当前冰块中下一次的起点
+            idxDown = idxUp = idxY * width + idxX;
+            if (idx == iceOrderSum)
+            {
+                currentOrderStart = 0;
+                idxDown = idxUp = 0;
+            }
+
+            return checkDone;
         }
 
         private void button1_Click(object sender, EventArgs e)
