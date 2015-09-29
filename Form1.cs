@@ -45,7 +45,7 @@ namespace NewMethod
         {
 
             //---debug-----
-            string picNameTest = @"C:\Users\blueyi\Documents\Visual Studio 2013\Projects\Test\NewMethod\bin\Debug\Temp\Test_pic.jpg";
+            string picNameTest = @"D:\blueyi\Documents\Visual Studio 2013\Projects\FindIceBlock\bin\Debug\Temp\Test_pic.jpg";
 
             Bitmap pic = new Bitmap(picNameTest);
             // Bitmap bgr = new Bitmap(longName3);
@@ -158,7 +158,7 @@ namespace NewMethod
                 {
                     
                     //重要的边界------
-                        while ((idxUp >= 0) && (arrLine[idxUp] != 0) && (arrLine[idxUp] != iceOrder))
+                        while ((idxUp >= 0) && (arrLine[idxUp] == 1) && (arrLine[idxUp] != iceOrder))
                         {
 //                            markIceLine(resultArr, iceOrder, ref iceOrderSum, ref idxUpX, ref idxUpY, width, ref allIceNumHere);
 //                            idxUpY--;
@@ -167,7 +167,7 @@ namespace NewMethod
                         }
 
                     //重要的边界------
-                        while ((idxDown / width < height) && (arrLine[idxDown] != 0) && (arrLine[idxDown] != iceOrder))
+                        while ((idxDown / width < height) && (arrLine[idxDown] == 1) && (arrLine[idxDown] != iceOrder))
                         {
                             markIceLine(arrLine, iceOrder, ref iceOrderSum, idxDown, currentCheckedIceIdx, width, ref allIceNumHere);
                             idxDown = idxDown + width + idxDown % width;
@@ -206,7 +206,7 @@ namespace NewMethod
                     //重要的边界------
                 //满足以下条件退出：超出图像左边界, 该位置不是冰，该文件是标记过的冰
                 // if ((leftX < 0) || (((leftX + 1) % width) == 0) || (arrLine[leftX] == 0) || (arrLine[leftX] == iceOrder))
-                if ((leftX < 0) || (((leftX + 1) % width) == 0) || (arrLine[leftX] == 0))
+                if ((leftX < 0) || (((leftX + 1) % width) == 0) || (arrLine[leftX] != 1))
                     break;
             }
 
@@ -214,7 +214,7 @@ namespace NewMethod
             {
                     //重要的边界------
                 //满足以下条件退出：超出图像左边界, 该位置不是冰，该文件是标记过的冰
-                if ((rightX > arrLine.Length) || ((rightX % width) == 0) || (arrLine[rightX] == 0))  //如果向右已经到达图像右边界，则直接退出
+                if ((rightX > arrLine.Length) || ((rightX % width) == 0) || (arrLine[rightX] != 1))  //如果向右已经到达图像右边界，则直接退出
                     break;
 
                 arrLine[rightX] = iceOrder;
