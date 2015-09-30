@@ -45,7 +45,7 @@ namespace NewMethod
         {
 
             //---debug-----
-            string picNameTest = @"D:\blueyi\Documents\Visual Studio 2013\Projects\FindIceBlock\bin\Debug\Temp\Test_pic.jpg";
+            string picNameTest = @"C:\Users\blueyi\Documents\Visual Studio 2013\Projects\Test\NewMethod\bin\Debug\Temp\Test_pic.jpg";
 
             Bitmap pic = new Bitmap(picNameTest);
             // Bitmap bgr = new Bitmap(longName3);
@@ -163,14 +163,14 @@ namespace NewMethod
 //                            markIceLine(resultArr, iceOrder, ref iceOrderSum, ref idxUpX, ref idxUpY, width, ref allIceNumHere);
 //                            idxUpY--;
                             markIceLine(arrLine, iceOrder, ref iceOrderSum, idxUp, currentCheckedIceIdx, width, ref allIceNumHere);
-                            idxUp = idxUp - width + idxUp % width;
+                            idxUp = idxUp - width;
                         }
 
                     //重要的边界------
                         while ((idxDown / width < height) && (arrLine[idxDown] == 1) && (arrLine[idxDown] != iceOrder))
                         {
                             markIceLine(arrLine, iceOrder, ref iceOrderSum, idxDown, currentCheckedIceIdx, width, ref allIceNumHere);
-                            idxDown = idxDown + width + idxDown % width;
+                            idxDown = idxDown + width;
                            // markIceLine(resultArr, iceOrder, ref iceOrderSum, ref idxDownX, ref idxDownY, width, ref allIceNumHere);
                            // idxDownY++;
                         }
@@ -326,7 +326,9 @@ namespace NewMethod
 
             }
             currentOrderStart = idx + 1;  //记录当前冰块中下一次的起点
-            idxDown = idxUp = idxY * width + idxX;
+           // idxDown = idxUp = idxY * width + idxX;
+            idxUp = idxY * width + idxX;
+            idxDown = (idxY + 1) * width + idxX;
             if (idx == iceOrderSum)
             {
                 currentOrderStart = 0;
