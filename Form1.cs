@@ -94,8 +94,11 @@ namespace NewMethod
             //将数组写入到文件
             arrToFile("board.txt", resultBoard, sWidth, sHeight);
 
+            int maxIce = 0;
+            int minIce = 0;
+       
             if (icenum > 0)
-                iceBlockNum = findIce(resultBoard, resultSum, sWidth, sHeight, icenum);
+                iceBlockNum = FindIceBlock.findIce(resultBoard, resultSum, sWidth, sHeight, icenum, ref maxIce, ref minIce);
 
             arrToFile("resultBoard.txt", resultBoard, sWidth, sHeight);
 
@@ -110,6 +113,8 @@ namespace NewMethod
            pic.Dispose();
         }
 
+        //Old method back
+        /*
         //遍历并标记所有冰块
         public int findIce(int[,] resultArr, int[] resultSum, int width, int height, int allIceNum)
         {
@@ -158,7 +163,7 @@ namespace NewMethod
                 {
                     
                     //重要的边界------
-                        while ((idxUp >= 0) && (arrLine[idxUp] == 1) && (arrLine[idxUp] != iceOrder))
+                        while ((idxUp >= 0) && (arrLine[idxUp] == 1))
                         {
 //                            markIceLine(resultArr, iceOrder, ref iceOrderSum, ref idxUpX, ref idxUpY, width, ref allIceNumHere);
 //                            idxUpY--;
@@ -167,7 +172,7 @@ namespace NewMethod
                         }
 
                     //重要的边界------
-                        while ((idxDown / width < height) && (arrLine[idxDown] == 1) && (arrLine[idxDown] != iceOrder))
+                        while ((idxDown / width < height) && (arrLine[idxDown] == 1))
                         {
                             markIceLine(arrLine, iceOrder, ref iceOrderSum, idxDown, currentCheckedIceIdx, width, ref allIceNumHere);
                             idxDown = idxDown + width;
@@ -260,6 +265,8 @@ namespace NewMethod
             {
                 x = currentCheckedIceIdx[idx] % width;
                 y = currentCheckedIceIdx[idx] / width;
+
+                //左
                 if ((x - 1 >= 0) && arrLine[x - 1 + y * width] == 1)
                 {
                     checkDone = false;
@@ -268,6 +275,7 @@ namespace NewMethod
                     break;
                 }
 
+                //右
                 if ((x + 1 < width) && arrLine[x + 1 + y * width] == 1)
                 {
                     checkDone = false;
@@ -276,6 +284,7 @@ namespace NewMethod
                     break;
                 }
 
+                //上
                 if ((y - 1 >= 0) && arrLine[x + (y - 1) * width] == 1)
                 {
                     checkDone = false;
@@ -284,6 +293,7 @@ namespace NewMethod
                     break;
                 }
 
+                //下
                 if ((y + 1 < height) && arrLine[x + (y + 1) * width] == 1)
                 {
                     checkDone = false;
@@ -292,6 +302,7 @@ namespace NewMethod
                     break;
                 }
 
+                //左上
                 if ((x - 1 >= 0) && (y - 1 >= 0) && arrLine[x - 1 + (y - 1) * width] == 1)
                 {
                     checkDone = false;
@@ -300,6 +311,7 @@ namespace NewMethod
                     break;
                 }
 
+                //右上
                 if ((x + 1 < width) && (y - 1 >= 0) && arrLine[x + 1 + (y - 1) * width] == 1)
                 {
                     checkDone = false;
@@ -308,6 +320,7 @@ namespace NewMethod
                     break;
                 }
 
+                //右下
                 if ((x + 1 < width) && (y + 1 < height) && arrLine[x + 1 + (y + 1) * width] == 1)
                 {
                     checkDone = false;
@@ -316,6 +329,7 @@ namespace NewMethod
                     break;
                 }
 
+                //左下
                 if ((x - 1 >= 0) && (y + 1 < height) && arrLine[x - 1 + (y + 1) * width] == 1)
                 {
                     checkDone = false;
@@ -329,14 +343,15 @@ namespace NewMethod
            // idxDown = idxUp = idxY * width + idxX;
             idxUp = idxY * width + idxX;
             idxDown = (idxY + 1) * width + idxX;
-            if (idx == iceOrderSum)
-            {
-                currentOrderStart = 0;
-                idxDown = idxUp = 0;
-            }
+            //if (idx == iceOrderSum)
+            //{
+            //    currentOrderStart = 0;
+            //    idxDown = idxUp = 0;
+            //}
 
             return checkDone;
         }
+        */
 
         private void button1_Click(object sender, EventArgs e)
         {
