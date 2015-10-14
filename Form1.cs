@@ -87,7 +87,7 @@ namespace NewMethod
                     resultBoard[i, j] = board[i, j];
                 }
             }
-            int[] resultSum = new int[icenum];
+            int[] resultSum = new int[icenum + 2];
 
             int iceBlockNum = 0;
 

@@ -32,9 +32,9 @@ namespace NewMethod
             int lastPoint = 0; //上一块冰的起点
 
             //将像素线性化
-            for (int i = 0; i < width; i++)
+            for (int j = 0; j < height; j++)
             {
-                for (int j = 0; j < height; j++)
+                for (int i = 0; i < width; i++)
                 {
                     arrLine[j * width + i] = resultArr[i, j];
                 }
@@ -257,7 +257,8 @@ namespace NewMethod
 
             currentOrderStart = idx + 1;  //记录当前冰块中下一次的起点
             idxUp = idxY * width + idxX;
-            idxDown = (idxY + 1) * width + idxX;
+            if (idxY + 1 < height)
+                idxDown = (idxY + 1) * width + idxX;
             return checkDone;
         }
 
